@@ -276,10 +276,14 @@ namespace Exercise6
             
             //Query syntax
             var querySyntax =
-                from e in Emps
-                where e.Job.Equals("Frontend programmer") && e.Salary > 1000
-                orderby e.Ename descending 
-                select e;
+                from emp in Emps // outer sequence
+                join dept in Depts //inner sequence 
+                    on emp.Deptno equals dept.Deptno // key selector 
+                select new { // result selector 
+                    emp.Ename,
+                    emp.Job,
+                    dept.Dname
+                };
             
             
             IEnumerable<object> result = methodSyntax;
@@ -291,7 +295,23 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task7()
         {
-            IEnumerable<object> result = null;
+            // Method syntax
+            var methodSyntax =
+                Emps.GroupBy(e => e.Job).Select(group => new
+                {
+                    Praca = group.Key,
+                    LiczbaPracownikow = group.Count()
+                });
+
+
+            //Query syntax
+            var querySyntax =
+                from e in Emps
+                group e by e.Job into grp
+                select new {Praca = grp.Key, LiczbaPracownikow = grp.Count() };
+            
+            
+            IEnumerable<object> result = methodSyntax;
             return result;
         }
 
