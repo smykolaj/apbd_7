@@ -1,4 +1,5 @@
-﻿using Exercise6.Models;
+﻿using System.Collections;
+using Exercise6.Models;
 
 namespace Exercise6
 {
@@ -321,7 +322,14 @@ namespace Exercise6
         /// </summary>
         public static bool Task8()
         {
-            bool result = false;
+            // Method syntax
+            var methodSyntax =
+                Emps.Any(e => e.Job.Equals("Backend programmer"));
+            
+            //Query syntax
+            // not supported
+
+            bool result = methodSyntax;
             return result;
         }
 
