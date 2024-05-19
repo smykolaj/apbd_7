@@ -339,7 +339,16 @@ namespace Exercise6
         /// </summary>
         public static Emp Task9()
         {
-            Emp result = null;
+            // Method syntax
+            var methodSyntax =
+                Emps
+                    .Where(s => s.Job.Equals("Frontend programmer")).MaxBy(e => e.HireDate);
+            
+            //Query syntax
+            //first or default is not supported
+            
+            
+            Emp result = methodSyntax;
             return result;
         }
 
@@ -350,7 +359,13 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task10()
         {
-            IEnumerable<object> result = null;
+            var a = new { Ename = "Brak wartości", Job = string.Empty, HireDate = (DateTime?)null };
+            var methodSyntax = Emps.Select(e => new { e.Ename, e.Job, e.HireDate }).Union(from emp in Emps
+                select a);
+            var methodSyntax2 = Emps.Select(e => new { e.Ename, e.Job, e.HireDate }).Append(a);
+                        
+            
+            IEnumerable<object> result = methodSyntax2;
             return result;
         }
 
@@ -367,7 +382,25 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task11()
         {
-            IEnumerable<object> result = null;
+            var methodSyntax = Emps
+                    .GroupBy(emp => emp.Deptno)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => new
+                    {
+                        id = g.Key,
+                        numOfEmployees = g.Count()
+                    }).Join(Depts,
+                        emp => emp.id,
+                        dept => dept.Deptno,
+                        (emp, dept) => new
+                        { 
+                            name = dept.Dname,
+                            emp.numOfEmployees
+                            
+                        })
+                ;
+            
+            IEnumerable<object> result = methodSyntax;
             return result;
         }
 
@@ -380,7 +413,13 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task12()
         {
-            IEnumerable<Emp> result = null;
+            var methodSyntax = Emps
+                .Where(e1 => Emps.Contains
+                    (e1, new CustomExtensionMethods.EmpsMgrComparer())
+                ).OrderBy(e => e.Ename).ThenByDescending(e => e.Salary);
+            
+            
+            IEnumerable<Emp> result = methodSyntax;
             return result;
         }
 
@@ -393,8 +432,11 @@ namespace Exercise6
         /// </summary>
         public static int Task13(int[] arr)
         {
-            int result = 0;
-            //result=
+            int result = arr
+                .GroupBy(e => e)
+                .Where(e => e.Count()%2 != 0)
+                .Select(e => e.Key)
+                .First();
             return result;
         }
 
@@ -404,14 +446,47 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Dept> Task14()
         {
-            IEnumerable<Dept> result = null;
-            //result =
+            var result = Depts.GroupJoin(Emps,
+                                                dept => dept.Deptno,
+                                                emp => emp.Deptno,
+                                                (dept, emps) => new
+                                                {
+                                                    OneDept = dept, 
+                                                    EmployeesInOneDept = emps
+                                                }
+                                            )
+                .Where(g => g.EmployeesInOneDept.Count() == 5 || !g.EmployeesInOneDept.Any())
+                .OrderBy(g => g.OneDept.Dname)
+                .Select(g => g.OneDept);
             return result;
         }
     }
 
     public static class CustomExtensionMethods
     {
+        public class EmpsMgrComparer : IEqualityComparer<Emp>
+        {
+            public bool Equals(Emp x, Emp y)
+            {
+                try
+                {
+                    if (y.Empno == x.Mgr.Empno)
+                        return true;
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+               
+
+                return false;
+            }
+
+            public int GetHashCode(Emp obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
         //Put your extension methods here
     }
 }
