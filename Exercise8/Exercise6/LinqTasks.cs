@@ -413,13 +413,7 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task12()
         {
-            var methodSyntax = Emps
-                .Where(e1 => Emps.Contains
-                    (e1, new CustomExtensionMethods.EmpsMgrComparer())
-                ).OrderBy(e => e.Ename).ThenByDescending(e => e.Salary);
-            
-            
-            IEnumerable<Emp> result = methodSyntax;
+            IEnumerable<Emp> result = Emps.TaskReturnEmpsWithSubordinate();
             return result;
         }
 
@@ -464,29 +458,13 @@ namespace Exercise6
 
     public static class CustomExtensionMethods
     {
-        public class EmpsMgrComparer : IEqualityComparer<Emp>
+        public static IEnumerable<Emp> TaskReturnEmpsWithSubordinate(this IEnumerable<Emp> emps)
         {
-            public bool Equals(Emp x, Emp y)
-            {
-                try
-                {
-                    if (y.Empno == x.Mgr.Empno)
-                        return true;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
-               
-
-                return false;
-            }
-
-            public int GetHashCode(Emp obj)
-            {
-                return obj.GetHashCode();
-            }
+            IEnumerable<Emp> result = 
+                emps
+                    .Where(emp => emps.Any(e => e.Mgr != null && e.Mgr.Equals(emp)))
+                    .OrderBy(e => e.Ename).ThenByDescending(e => e.Salary);
+            return result;
         }
-        //Put your extension methods here
     }
 }
